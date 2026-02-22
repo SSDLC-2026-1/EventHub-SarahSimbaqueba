@@ -17,7 +17,10 @@ Where:
 import re
 import unicodedata
 from datetime import datetime
+from datetime import UTC
 from typing import Tuple, Dict
+
+from flask import blueprints
 
 
 # =============================
@@ -57,8 +60,13 @@ def luhn_is_valid(number: str) -> bool:
         False otherwise
     """
     # TODO: Implement Luhn algorithm
-    pass
+    rev = [int(ch) for ch in str(number)][::-1]
+    return (sum(rev[0::2]) + sum(sum(divmod(d * 2, 10)) for d in rev[1::2])) % 10 == 0
 
+def remove_space_hyphens(value: str) -> str:
+    value = value.replace(" ", "")
+    value = value.replace("-", "")
+    return value
 
 # =============================
 # Field Validations
@@ -69,10 +77,10 @@ def validate_card_number(card_number: str) -> Tuple[str, str]:
     Validate credit card number.
 
     Requirements:
-    - Normalize input
-    - Remove spaces and hyphens before validation
-    - Must contain digits only
-    - Length between 13 and 19 digits
+    - Normalize input -
+    - Remove spaces and hyphens before validation -
+    - Must contain digits only -
+    - Length between 13 and 19 digits -
     - BONUS: Must pass Luhn algorithm
 
     Input:
@@ -86,18 +94,30 @@ def validate_card_number(card_number: str) -> Tuple[str, str]:
         - If valid → return (all credit card digits, "")
     """
     # TODO: Implement validation
-    return "", ""
-
+    #Normalize
+    card_number = normalize_basic(card_number)
+    #Remove space and -
+    card_number = remove_space_hyphens(card_number)
+    #Only digits
+    if not card_number.isdigit():
+        return ("", "The credit card can only contain numbers")
+    #Lenght
+    if len(card_number) < 13 or len(card_number) > 19: 
+        return ("", "Invalid size")
+    #Luhn algorithm
+    if not luhn_is_valid(card_number):
+        return ("", "No valid by luhn")
+    return (card_number, "")
 
 def validate_exp_date(exp_date: str) -> Tuple[str, str]:
     """
     Validate expiration date.
 
     Requirements:
-    - Format must be MM/YY
-    - Month must be between 01 and 12
-    - Must not be expired compared to current UTC date
-    - Optional: limit to reasonable future (e.g., +15 years)
+    - Format must be MM/YY -
+    - Month must be between 01 and 12 -
+    - Must not be expired compared to current UTC date -
+    - Optional: limit to reasonable future (e.g., +15 years) -
 
     Input:
         exp_date (str)
@@ -106,8 +126,26 @@ def validate_exp_date(exp_date: str) -> Tuple[str, str]:
         (normalized_exp_date, error_message)
     """
     # TODO: Implement validation
-    return "", ""
-
+    exp_number = exp_date[0:2] + exp_date[3:5]
+    #format MM/YY
+    if not exp_number.isdigit() or exp_date[2] != "/":
+        return ("", "Invalid format")
+    
+    #Month
+    if int(exp_number[0:2]) > 12 or int(exp_number[0:2]) < 1:
+        return ("", "Invalid month")
+    #Not expired
+    today_utc = str(datetime.now(tz=UTC))
+    if int(exp_number[2:4]) + 2000 < int(str(today_utc)[0:4]):
+        return ("", "Expired card")
+    elif int(exp_number[2:4]) + 2000 == int(str(today_utc)[0:4]) and int(str(today_utc)[5:7]) > int(exp_number[0:2]):
+        return ("", "Expired card")
+    #Reasonable futue
+    if int(exp_number[2:4]) + 2000 > 15 + int(str(today_utc)[0:4]):
+        return ("", "Invalid card, year too away")
+    
+    return exp_date, ""
+    print("expired")
 
 def validate_cvv(cvv: str) -> Tuple[str, str]:
     """
@@ -126,8 +164,13 @@ def validate_cvv(cvv: str) -> Tuple[str, str]:
         (always return empty clean value for security reasons)
     """
     # TODO: Implement validation
+    #Only digits
+    if not cvv.isdigit():
+        return ("", "The ccv can only contain numbers")
+    #3 or 4 digits
+    if not (len(cvv) == 3 or len(cvv) == 4):
+        return ("", "Invalid size")
     return "", ""
-
 
 def validate_billing_email(billing_email: str) -> Tuple[str, str]:
     """
@@ -145,8 +188,21 @@ def validate_billing_email(billing_email: str) -> Tuple[str, str]:
         (normalized_email, error_message)
     """
     # TODO: Implement validation
-    return "", ""
-
+    #Normalize
+    billing_email = normalize_basic(billing_email)
+    billing_email = billing_email.lower()
+    #Max lenght
+    if len(billing_email) > 254:
+        return "", "Invalid size"
+    #Check format
+    format_check = billing_email.find("@")
+    if format_check == -1:
+        return "", "Must contain @"
+    if billing_email.count("@") != 1:
+        return "", "Must contain only one @"
+    if format_check == 0 or billing_email[len(billing_email)-4:] != ".com":
+        return "", "Invalid format"
+    return billing_email, ""
 
 def validate_name_on_card(name_on_card: str) -> Tuple[str, str]:
     """
@@ -165,8 +221,17 @@ def validate_name_on_card(name_on_card: str) -> Tuple[str, str]:
         (normalized_name, error_message)
     """
     # TODO: Implement validation
-    return "", ""
-
+    #Normalize
+    name_on_card = normalize_basic(name_on_card)
+    #Collapse spaces
+    name_on_card = re.sub(' +', ' ', name_on_card)
+    #Lenght
+    if len(name_on_card) < 2 or len(name_on_card) > 60:
+        return "", "Invalid size"
+    #Only characters
+    if all(x.isalpha() or x.isspace() or x =="-" or x == "'" for x in name_on_card):
+        return name_on_card, ""
+    return "", "Must contain only letters, spacem apostrophes, or hyphens"
 
 # =============================
 # Orchestrator Function
