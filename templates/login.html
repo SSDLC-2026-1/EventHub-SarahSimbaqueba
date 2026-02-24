@@ -16,7 +16,12 @@
       <span>Secure access to your tickets</span>
     </div>
 
-    {% if error %}
+    {% if error == "Account temporarily locked" %}
+    <div class="auth-banner auth-banner-error">
+      <strong>Account temporarily locked.</strong>
+      Wait <span id="contador">{{ segundos_restantes }}</span> seconds.
+    </div>
+    {% elif error =="Invalid credentials." %}
     <div class="auth-banner auth-banner-error">
         <strong>{{ error }}</strong> Please check your email and password.
     </div>
@@ -69,4 +74,31 @@
     </form>
   </div>
 </section>
+{% if error == "Account temporarily locked" and segundos_restantes %}
+<script>
+let segundos = {{ segundos_restantes }};
+let contador = document.getElementById("contador");
+
+if (contador) {
+    let intervalo = setInterval(() => {
+        if (segundos <= 0) {
+          clearInterval(intervalo);
+          contador.innerText = "0";
+        
+
+        fetch("/desbloquear_usuario", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({email: email})
+        }).then(res => res.json())
+          .then(data => console.log("Usuario desbloqueado:", data));
+        } else {
+            contador.innerText = segundos;
+            segundos--;
+        }
+    }, 1000);
+}
+</script>
+{% endif %}
+
 {% endblock %}

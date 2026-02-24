@@ -5,9 +5,10 @@ from datetime import datetime
 from typing import List, Optional, Dict
 
 from flask import Flask, render_template, request, abort, url_for, redirect, session
+from flask import jsonify
 from pathlib import Path
 import json
-
+import time
 from validation import validate_payment_form
 
 app = Flask(__name__)
@@ -19,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent
 EVENTS_PATH = BASE_DIR / "data" / "events.json"
 USERS_PATH = BASE_DIR / "data" / "users.json"
 ORDERS_PATH = BASE_DIR / "data" / "orders.json"
+BLOCK_PATH = BASE_DIR / "data" / "block.json"
 CATEGORIES = ["All", "Music", "Tech", "Sports", "Business"]
 CITIES = ["Any", "New York", "San Francisco", "Berlin", "London", "Oakland", "San Jose"]
 
@@ -142,6 +144,49 @@ def load_users() -> list[dict]:
     return json.loads(USERS_PATH.read_text(encoding="utf-8"))
 
 
+def update_block() -> None:
+    # Leer el JSON
+    data = json.loads(BLOCK_PATH.read_text(encoding="utf-8"))
+    
+    # Acceder al diccionario correctamente
+    users = data[0]['usuarios']
+    
+    # Actualizar intentos
+    users['intentos'] += 1
+    
+    # Verificar 
+    if users['intentos'] > 3:
+        users['tiempoBloqueo'] = 300
+    
+    # Actualizar json
+    with open(BLOCK_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+
+def delete_block() -> None:
+    data = json.loads(BLOCK_PATH.read_text(encoding="utf-8"))
+    users = data[0]['usuarios']
+    # Actualizar intentos
+    users['intentos'] = 0
+    users['tiempoBloqueo'] = 0
+    with open(BLOCK_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+def check_time() -> int:
+    data = json.loads(BLOCK_PATH.read_text(encoding="utf-8"))
+    users = data[0]["usuarios"]
+    rest_time = users["tiempoBloqueo"]
+    return rest_time
+
+@app.route("/desbloquear_usuario", methods=["POST"])
+def desbloquear_usuario():
+    data = json.loads(BLOCK_PATH.read_text(encoding="utf-8"))
+    users = data[0]['usuarios']
+    users['tiempoBloqueo'] = 0
+    with open(BLOCK_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+    return jsonify({"status": "ok"})
+
 def save_users(users: list[dict]) -> None:
     USERS_PATH.write_text(json.dumps(users, indent=2), encoding="utf-8")
 
@@ -157,6 +202,7 @@ def find_user_by_email(email: str) -> Optional[dict]:
 
 def user_exists(email: str) -> bool:
     return find_user_by_email(email) is not None
+
 
 def load_orders() -> list[dict]:
     if not ORDERS_PATH.exists():
@@ -240,10 +286,16 @@ def login():
         registered = request.args.get("registered")
         msg = "Account created successfully. Please sign in." if registered == "1" else None
         return render_template("login.html", info_message=msg)
-
+    
+    rest_time = check_time()
+    if rest_time != 0:
+        return render_template(
+            "login.html",
+            error="Account temporarily locked",
+            segundos_restantes = rest_time,
+        ), 400
     email = request.form.get("email", "")
     password = request.form.get("password", "")
-
     field_errors = {}
 
     if not email.strip():
@@ -261,13 +313,14 @@ def login():
 
     user = find_user_by_email(email)
     if not user or user.get("password") != password:
+        update_block()
         return render_template(
             "login.html",
             error="Invalid credentials.",
             field_errors={"email": " ", "password": " "},
             form={"email": email},
         ), 401
-
+    delete_block()
     session["user_email"] = (user.get("email") or "").strip().lower()
 
     return redirect(url_for("dashboard"))
