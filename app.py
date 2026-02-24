@@ -353,39 +353,39 @@ def login():
 def register():
     if request.method == "GET":
         return render_template("register.html")
-
+    err = ""
     full_name = request.form.get("full_name", "")
     full_name, err = validation.validate_name_on_card(full_name)
     if err:
         return render_template(
-            "register.html"
-            error = err
+            "register.html",
+            error = "error in name: {0}".format(err)
         )
     email = request.form.get("email", "")
     email, err = validation.validate_billing_email(email)
     if err: 
         return render_template(
-            "register.html"
-            error = err
+            "register.html",
+            error = "error in email: {0}".format(err)
         )
     phone = request.form.get("phone", "")
     phone, err = validation.validate_phone_number(phone)
     if err: 
         return render_template(
-            "register.html"
-            error = err
+            "register.html",
+            error = "error in phone number: {0}".format(err)
         )
     password = request.form.get("password", "")
     password, err = validation.validate_password(password)
     if err:
         return render_template(
-            "register.html"
-            error = err
+            "register.html",
+            error = "error in password: {0}".format(err)
         )
     confirm_password = request.form.get("confirm_password", "")
     if confirm_password != password:
         return render_template(
-            "register.html"
+            "register.html",
             error = "Password dosen't coincide"
         )
 
@@ -526,10 +526,26 @@ def profile():
     if request.method == "POST":
         full_name = request.form.get("full_name", "")
         phone = request.form.get("phone", "")
-
+        old_password = request.form.get("password", "")
         current_password = request.form.get("current_password", "")
+        if old_password != current_password:
+            return render_template(
+                "profile.html",
+                error = "Incorrect password"
+        )
         new_password = request.form.get("new_password", "")
+        new_password, err = validation.validate_password(new_password, "")
+        if err:
+            return render_template(
+                "profile.html",
+                error = "error in password: {0}".format(err)
+        )
         confirm_new_password = request.form.get("confirm_new_password", "")
+        if new_password != confirm_new_password:
+            return render_template(
+                "profile.html"
+                error = "Password confirmation dosen't coincide"
+        )   
 
         users = load_users()
         email_norm = (user.get("email") or "").strip().lower()
