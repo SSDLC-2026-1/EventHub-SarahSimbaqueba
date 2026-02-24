@@ -233,6 +233,65 @@ def validate_name_on_card(name_on_card: str) -> Tuple[str, str]:
         return name_on_card, ""
     return "", "Must contain only letters, spacem apostrophes, or hyphens"
 
+def validate_phone_number(number: str) ->Tuple[int, str]:
+    """
+    Validate phone number.
+
+    Requirements:
+    - Only numbers
+    - Eliminate spaces
+    - Length between 7 and 15 characters
+
+    Input:
+        number (str)
+
+    Returns:
+        (normalized_number, error_message)
+    """
+    number.replace(" ","")
+    if not number.isdigit():
+        return "", "Must contain only numbers"
+    number = int(number)
+    if len(number) < 7 or len(number) > 15:
+        return "", "Invalid size"
+    return number, ""
+
+def validate_password(password: str, email: str) ->Tuple[int, str]:
+    """
+    Validate password.
+
+    Requirements:
+    - Length between 8 and 64 characters
+    - At least one capital, lower, one number
+    - At least one especial ! @ # $ % ^ & * ( ) - _ = + [ ] { } < > ?
+    - No space
+    - Different from email 
+
+    Input:
+        password (str), email (str)
+
+    Returns:
+        (password, error_message)
+    """
+    
+    if len(password) < 8 or len(password) > 64:
+        return "", "Invalid size"
+    if not (any(c.isupper() for c in password)):
+        return "", "Must contain at least one capital letter"
+    if not (any(c.islower() for c in password)):
+        return "", "Must contain at least one lower letter"
+    if not (any(c.isnumeric() for c in password)):
+        return "", "Must contain at least one number"
+    special = ["!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[", "]", "{", "}", "<", ">", "?"]
+    if not (any(c in special for c in password)):
+        return "", "Must contain at least one special character. ! @ # $ % ^ & * ( ) - _ = + [ ] { } < > ?"
+    if any(c.isspace() for c in password):
+        return "", "Cant contain spaces"
+    if password == email:
+        return "", "Cant be the same as the email"
+    return password, ""
+
+
 # =============================
 # Orchestrator Function
 # =============================

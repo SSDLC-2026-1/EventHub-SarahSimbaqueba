@@ -10,7 +10,7 @@ from pathlib import Path
 import json
 import time
 from validation import validate_payment_form
-
+import validation
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.secret_key = "dev-secret-change-me"
@@ -355,10 +355,39 @@ def register():
         return render_template("register.html")
 
     full_name = request.form.get("full_name", "")
+    full_name, err = validation.validate_name_on_card(full_name)
+    if err:
+        return render_template(
+            "register.html"
+            error = err
+        )
     email = request.form.get("email", "")
+    email, err = validation.validate_billing_email(email)
+    if err: 
+        return render_template(
+            "register.html"
+            error = err
+        )
     phone = request.form.get("phone", "")
+    phone, err = validation.validate_phone_number(phone)
+    if err: 
+        return render_template(
+            "register.html"
+            error = err
+        )
     password = request.form.get("password", "")
+    password, err = validation.validate_password(password)
+    if err:
+        return render_template(
+            "register.html"
+            error = err
+        )
     confirm_password = request.form.get("confirm_password", "")
+    if confirm_password != password:
+        return render_template(
+            "register.html"
+            error = "Password dosen't coincide"
+        )
 
     if user_exists(email):
         return render_template(
