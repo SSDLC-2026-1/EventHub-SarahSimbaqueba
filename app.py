@@ -219,6 +219,25 @@ def next_order_id(orders: list[dict]) -> int:
     return max([o.get("id", 0) for o in orders], default=0) + 1
 
 
+def require_login() -> None:
+    user = get_current_user()
+    if not user:
+        session.clear()
+        return redirect(url_for("login"))
+    
+
+def require_admin():
+    login_check = require_login()
+    if login_check:  
+        return login_check
+    user = get_current_user()
+    if user["role"] != "admin":
+        return render_template(
+            "error.html",
+            error=403,
+            message="Forbidden content"
+        ), 403
+    return None 
 # -----------------------------
 # Rutas
 # -----------------------------
@@ -247,6 +266,10 @@ def index():
         upcoming=upcoming,
     )
 
+@app.context_processor
+def inject_user():
+    user_data = get_current_user()
+    return dict(current_user=user_data)
 
 @app.get("/event/<int:event_id>")
 def event_detail(event_id: int):
@@ -322,6 +345,7 @@ def login():
         ), 401
     delete_block()
     session["user_email"] = (user.get("email") or "").strip().lower()
+    
 
     return redirect(url_for("dashboard"))
 
@@ -361,14 +385,18 @@ def register():
 
 @app.get("/dashboard")
 def dashboard():
-
-
+    login_check = require_login()
+    if login_check:  
+        return login_check
     paid = request.args.get("paid") == "1"
     user = get_current_user()
     return render_template("dashboard.html", user_name=(user.get("full_name") if user else "User"), paid=paid)
 
 @app.route("/checkout/<int:event_id>", methods=["GET", "POST"])
 def checkout(event_id: int):
+    login_check = require_login()
+    if login_check:  
+        return login_check
 
 
     events = load_events()
@@ -448,7 +476,9 @@ def checkout(event_id: int):
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
- 
+    login_check = require_login()
+    if login_check:  
+        return login_check
 
     user = get_current_user()
     if not user:
@@ -496,9 +526,18 @@ def profile():
         field_errors=field_errors,
         success_message=success_msg,
     )
+@app.route("/error", methods=["GET", "POST"])
+def error_page():
+    cod_error = 0
+    mesage = "error"
+    return render_template("error.html", error = cod_error, mesage = mesage)
+
+
 @app.get("/admin/users")
 def admin_users():
-
+    admin_check = require_admin()
+    if admin_check:  
+        return admin_check
     q = (request.args.get("q") or "").strip().lower()
     role = (request.args.get("role") or "all").strip().lower()
     status = (request.args.get("status") or "all").strip().lower()
