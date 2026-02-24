@@ -87,16 +87,26 @@ def hash_password(password):
     Pista:
         hashlib.pbkdf2_hmac(...)
     """
+    # Generar salt aleatoria
 
-    # TODO: Generar salt aleatoria
+    salt = os.urandom(16)
 
-    # TODO: Derivar clave usando pbkdf2_hmac
+    # Derivar clave usando pbkdf2_hmac
+    iterations = 200000
+    clave = hashlib.pbkdf2_hmac("sha256", 
+                                password.encode(),
+                                salt,
+                                iterations,
+                                dklen = 32
+    )
+    # Retornar diccionario con salt y hash en formato hex
 
-    # TODO: Retornar diccionario con salt y hash en formato hex
-
-    pass
-
-
+    return {
+        "algorithm": "pbkdf2_sha256",
+        "iterations": iterations,
+        "salt": salt.hex(),   
+        "hash": clave.hex() 
+    }
 
 def verify_password(password, stored_data):
     """
@@ -120,13 +130,15 @@ def verify_password(password, stored_data):
         }
     """
 
-    # TODO: Extraer salt e iterations
+    #Extraer salt e iterations
+    salt = stored_data["salt"]
+    iterations = stored_data["iterations"]
+    salt_bytes = bytes.fromhex(salt)
+    #Recalcular hash
+    hash = hashlib.pbkdf2_hmac("sha256", password.encode(), salt_bytes, iterations, dklen=32)
 
-    # TODO: Recalcular hash
-
-    # TODO: Comparar con compare_digest
-
-    pass
+    #Comparar con compare_digest
+    return hmac.compare_digest(hash.hex(),stored_data["hash"])
 
 
 
@@ -153,9 +165,9 @@ if __name__ == "__main__":
     password = "Password123!"
 
     # Cuando implementen hash_password:
-    # pwd_data = hash_password(password)
-    # print("Hash generado:", pwd_data)
+    pwd_data = hash_password(password)
+    print("Hash generado:", pwd_data)
 
     # Cuando implementen verify_password:
-    # print("Verificación correcta:",
-    #       verify_password("Password123!", pwd_data))
+    print("Verificación correcta:",
+           verify_password("Password123!", pwd_data))
