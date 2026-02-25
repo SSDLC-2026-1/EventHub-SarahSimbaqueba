@@ -8,7 +8,6 @@ from flask import Flask, render_template, request, abort, url_for, redirect, ses
 from flask import jsonify
 from pathlib import Path
 import json
-import time
 from validation import validate_payment_form
 import validation
 app = Flask(__name__)
@@ -323,9 +322,13 @@ def login():
 
     if not email.strip():
         field_errors["email"] = "Email is required."
+    else:   
+        email, err = validation.validate_billing_email
+        if err: 
+            field_errors["email"] = "Email format not valid"
     if not password.strip():
         field_errors["password"] = "Password is required."
-
+    
     if field_errors:
         return render_template(
             "login.html",
@@ -543,7 +546,7 @@ def profile():
         confirm_new_password = request.form.get("confirm_new_password", "")
         if new_password != confirm_new_password:
             return render_template(
-                "profile.html"
+                "profile.html",
                 error = "Password confirmation dosen't coincide"
         )   
 
