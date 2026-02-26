@@ -11,12 +11,15 @@ En este módulo deberás implementar:
 
 NO modificar la función encrypt_aes().
 """
-
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
+import crypto
+#from Crypto.Cipher import AES
+#from Crypto.Random import get_random_bytes
 import hashlib
 import os
 import hmac
+
+from numpy import size
+
 
 # ==========================================================
 # AES-GCM (requiere pip install pycryptodome)
@@ -140,9 +143,17 @@ def verify_password(password, stored_data):
     #Comparar con compare_digest
     return hmac.compare_digest(hash.hex(),stored_data["hash"])
 
+def ofuscation(number):
+    ofus = ""
+    for i in str(number)[:size(number)-5]:
+        ofus += "*"
+    ofus += str(number)[size(number)-5:]
+    return ofus
+print(1234567891234)
+print(ofuscation(1234567891234))
 
 
-if __name__ == "__main__":
+if __name__ != "__main__":
 
     print("=== PRUEBA AES ===")
 
@@ -171,3 +182,4 @@ if __name__ == "__main__":
     # Cuando implementen verify_password:
     print("Verificación correcta:",
            verify_password("Password123!", pwd_data))
+    
