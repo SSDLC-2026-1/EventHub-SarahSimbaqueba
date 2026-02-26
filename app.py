@@ -237,6 +237,8 @@ def require_admin():
             message="Forbidden content"
         ), 403
     return None 
+
+    
 # -----------------------------
 # Rutas
 # -----------------------------
@@ -322,8 +324,8 @@ def login():
 
     if not email.strip():
         field_errors["email"] = "Email is required."
-    else:   
-        email, err = validation.validate_billing_email
+    else:
+        email, err = validation.validate_billing_email(email)
         if err: 
             field_errors["email"] = "Email format not valid"
     if not password.strip():
@@ -414,6 +416,16 @@ def register():
     save_users(users)
 
     return redirect(url_for("login", registered="1"))
+
+@app.route("/logout")
+def logout():
+    login_check = require_login()
+    if login_check:
+        return login_check
+    session.clear()
+    
+    return render_template("login.html", info_message="Log out")
+
 
 @app.get("/dashboard")
 def dashboard():
