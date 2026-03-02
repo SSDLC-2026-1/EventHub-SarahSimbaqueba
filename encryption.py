@@ -11,13 +11,12 @@ En este módulo deberás implementar:
 
 NO modificar la función encrypt_aes().
 """
-import crypto
-#from Crypto.Cipher import AES
-#from Crypto.Random import get_random_bytes
+
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
 import hashlib
 import os
 import hmac
-
 from numpy import size
 
 
@@ -110,7 +109,6 @@ def hash_password(password):
         "salt": salt.hex(),   
         "hash": clave.hex() 
     }
-
 def verify_password(password, stored_data):
     """
     Verifica una contraseña contra el hash almacenado.
@@ -149,37 +147,35 @@ def ofuscation(number):
         ofus += "*"
     ofus += str(number)[size(number)-5:]
     return ofus
-print(1234567891234)
-print(ofuscation(1234567891234))
 
+print(get_random_bytes(16))
+# if __name__ == "__main__":
 
-if __name__ != "__main__":
+#     print("=== PRUEBA AES ===")
 
-    print("=== PRUEBA AES ===")
+#     texto = "Hola Mundo"
+#     clave = get_random_bytes(16)
 
-    texto = "Hola Mundo"
-    clave = get_random_bytes(16)
+#     texto_cifrado, nonce, tag = encrypt_aes(texto, clave)
 
-    texto_cifrado, nonce, tag = encrypt_aes(texto, clave)
-
-    print("Texto cifrado:", texto_cifrado)
-    print("Nonce:", nonce)
-    print("Tag:", tag)
+#     print("Texto cifrado:", texto_cifrado)
+#     print("Nonce:", nonce)
+#     print("Tag:", tag)
     
-    # Cuando implementen decrypt_aes, esto debe funcionar
-    texto_descifrado = decrypt_aes(texto_cifrado, nonce, tag, clave)
-    print("Texto descifrado:", texto_descifrado)
+#     # Cuando implementen decrypt_aes, esto debe funcionar
+#     texto_descifrado = decrypt_aes(texto_cifrado, nonce, tag, clave)
+#     print("Texto descifrado:", texto_descifrado)
 
 
-    print("\n=== PRUEBA HASH ===")
+#     print("\n=== PRUEBA HASH ===")
 
-    password = "Password123!"
+#     password = "Password123!"
 
-    # Cuando implementen hash_password:
-    pwd_data = hash_password(password)
-    print("Hash generado:", pwd_data)
+#     # Cuando implementen hash_password:
+#     pwd_data = hash_password(password)
+#     print("Hash generado:", pwd_data)
 
-    # Cuando implementen verify_password:
-    print("Verificación correcta:",
-           verify_password("Password123!", pwd_data))
+#     # Cuando implementen verify_password:
+#     print("Verificación correcta:",
+#            verify_password("Password123!", pwd_data))
     

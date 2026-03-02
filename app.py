@@ -13,8 +13,7 @@ import validation
 import encryption
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
-app.secret_key = "dev-secret-change-me"
-
+app.secret_key = b'1234567890123456'
 
 BASE_DIR = Path(__file__).resolve().parent
 EVENTS_PATH = BASE_DIR / "data" / "events.json"
@@ -321,6 +320,7 @@ def login():
         ), 400
     email = request.form.get("email", "")
     password = request.form.get("password", "")
+
     field_errors = {}
 
     if not email.strip():
@@ -341,7 +341,8 @@ def login():
         ), 400
 
     user = find_user_by_email(email)
-    if not user or user.get("password") != password:
+    print(encryption.verify_password(password, user.get("password")))
+    if not user or not encryption.verify_password(password, user.get("password")):
         update_block()
         return render_template(
             "login.html",
@@ -382,7 +383,7 @@ def register():
             error = "error in phone number: {0}".format(err)
         )
     password = request.form.get("password", "")
-    password, err = validation.validate_password(password)
+    password, err = validation.validate_password(password, "")
     if err:
         return render_template(
             "register.html",
@@ -403,7 +404,7 @@ def register():
 
     users = load_users()
     next_id = (max([u.get("id", 0) for u in users], default=0) + 1)
-
+    password = encryption.hash_password(password)
     users.append({
         "id": next_id,
         "full_name": full_name,
@@ -480,7 +481,8 @@ def checkout(event_id: int):
         name_on_card=name_on_card,
         billing_email=billing_email
     )
-
+    card_number = encryption.ofuscation(card_number)
+    
     form_data = {
         "exp_date": clean.get("exp_date", ""),
         "name_on_card": clean.get("name_on_card", ""),
@@ -498,10 +500,9 @@ def checkout(event_id: int):
 
     orders = load_orders()
     order_id = next_order_id(orders)
-
     orders.append({
         "id": order_id,
-        "user_email": "PLACEHOLDER@EMAIL.COM",
+        "user_email": encryption.encrypt_aes(billing_email, app.secret_key),
         "event_id": event.id,
         "event_title": event.title,
         "qty": qty,
@@ -542,9 +543,9 @@ def profile():
     if request.method == "POST":
         full_name = request.form.get("full_name", "")
         phone = request.form.get("phone", "")
-        old_password = request.form.get("password", "")
+        old_password = user.get("password")
         current_password = request.form.get("current_password", "")
-        if old_password != current_password:
+        if not encryption.verify_password(current_password, old_password):
             return render_template(
                 "profile.html",
                 error = "Incorrect password"
@@ -565,7 +566,7 @@ def profile():
 
         users = load_users()
         email_norm = (user.get("email") or "").strip().lower()
-
+        new_password= encryption.hash_password(new_password)
         for u in users:
             if (u.get("email") or "").strip().lower() == email_norm:
                 u["full_name"] = full_name

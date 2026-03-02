@@ -251,9 +251,9 @@ def validate_phone_number(number: str) ->Tuple[int, str]:
     number.replace(" ","")
     if not number.isdigit():
         return "", "Must contain only numbers"
-    number = int(number)
     if len(number) < 7 or len(number) > 15:
         return "", "Invalid size"
+    number = int(number)
     return number, ""
 
 def validate_password(password: str, email: str) ->Tuple[int, str]:
