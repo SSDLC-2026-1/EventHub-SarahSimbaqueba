@@ -109,6 +109,7 @@ def hash_password(password):
         "salt": salt.hex(),   
         "hash": clave.hex() 
     }
+
 def verify_password(password, stored_data):
     """
     Verifica una contraseña contra el hash almacenado.
@@ -148,7 +149,6 @@ def ofuscation(number):
     ofus += str(number)[size(number)-5:]
     return ofus
 
-print(get_random_bytes(16))
 # if __name__ == "__main__":
 
 #     print("=== PRUEBA AES ===")

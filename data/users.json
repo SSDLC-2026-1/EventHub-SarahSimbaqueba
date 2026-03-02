@@ -4,16 +4,26 @@
     "full_name": "sara",
     "email": "test@tes.com",
     "phone": "3001111112",
-    "password": "aaa114",
+    "password": {
+      "algorithm": "pbkdf2_sha256",
+      "iterations": 200000, 
+      "salt": "de1ab38dbfb873cc8d5ae7f2ffa85f4b", 
+      "hash": "65bd1c9e3d68b9499b8be3adaedc5e237c31f5b25e767b7bbe9e7d11fc50c1bd"
+      },
     "role": "admin",
     "status": "active"
-  },
+  }, 
   {
     "id": 2,
     "full_name": "pepito",
     "email": "test3@tes.com",
     "phone": "3001111112",
-    "password": "aaa114",
+    "password": {
+      "algorithm": "pbkdf2_sha256",
+      "iterations": 200000, 
+      "salt": "de1ab38dbfb873cc8d5ae7f2ffa85f4b", 
+      "hash": "65bd1c9e3d68b9499b8be3adaedc5e237c31f5b25e767b7bbe9e7d11fc50c1bd"
+      },
     "role": "user",
     "status": "active"
   },
