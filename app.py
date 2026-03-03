@@ -1,7 +1,8 @@
+#pass: aaa114
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Dict
 
 from flask import Flask, render_template, request, abort, url_for, redirect, session
@@ -341,7 +342,6 @@ def login():
         ), 400
 
     user = find_user_by_email(email)
-    print(encryption.verify_password(password, user.get("password")))
     if not user or not encryption.verify_password(password, user.get("password")):
         update_block()
         return render_template(
@@ -352,7 +352,7 @@ def login():
         ), 401
     delete_block()
     session["user_email"] = (user.get("email") or "").strip().lower()
-    
+    session['login_time'] = datetime.now(timezone.utc).timestamp()
 
     return redirect(url_for("dashboard"))
 
@@ -525,7 +525,13 @@ def profile():
     login_check = require_login()
     if login_check:  
         return login_check
-
+    login_time = session.get('login_time')
+    if not login_time:
+        return redirect(url_for("logout"))
+    now = datetime.now(timezone.utc).timestamp()
+    time_used = now - login_time
+    if time_used > 180:
+        return redirect('/logout')
     user = get_current_user()
     if not user:
         session.clear()
