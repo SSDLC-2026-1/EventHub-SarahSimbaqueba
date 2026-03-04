@@ -6,35 +6,35 @@ El objetivo de esta sección es evaluar la comprensión precisa de los conceptos
 
 1. **¿Qué tipo de requisito especifica cómo debe comportarse la aplicación?**
    - [ ] a) Requisitos funcionales 
-      - [ X] b) Requisitos no funcionales  
-         - [ ] c) Requisitos de los interesados (stakeholders)  
-            - [ ] d) Requisitos de recursos 
+   - [X] b) Requisitos no funcionales  
+   - [ ] c) Requisitos de los interesados (stakeholders)  
+   - [ ] d) Requisitos de recursos 
 
-            2. **¿Por qué es importante la seguridad de las aplicaciones?**
-               - [ ] a) Para aumentar el riesgo de brechas de datos  
-                  - [X ] b) Para prevenir pérdidas financieras  
-                     - [ ] c) Para mejorar el rendimiento de la aplicación  
-                        - [ ] d) Para incrementar las repercusiones legales  
+2. **¿Por qué es importante la seguridad de las aplicaciones?**
+   - [ ] a) Para aumentar el riesgo de brechas de datos  
+   - [X] b) Para prevenir pérdidas financieras  
+   - [ ] c) Para mejorar el rendimiento de la aplicación  
+   - [ ] d) Para incrementar las repercusiones legales  
 
-                        3. **¿Qué tipo de riesgos de seguridad están incluidos en el OWASP Top 10?**
-                           - [X] a) Ataques de inyección y fallas en la autenticación  
-                              - [ ] b) Software y especificaciones de hardware desactualizados
-                                 - [ ] c) Deficiencias en el diseño de la interfaz de usuario
-                                    - [ ] d) Problemas de configuración de red
+3. **¿Qué tipo de riesgos de seguridad están incluidos en el OWASP Top 10?**
+   - [X] a) Ataques de inyección y fallas en la autenticación  
+   - [ ] b) Software y especificaciones de hardware desactualizados
+   - [ ] c) Deficiencias en el diseño de la interfaz de usuario
+   - [ ] d) Problemas de configuración de red
 
-                                    4. **¿Qué es una referencia directa insegura a objetos (IDOR)?**
-                                       - [ ] a) Un método en el que la base de datos queda expuesta
-                                          - [X ] b) Un método en el que se exponen objetos internos
-                                             - [ ] c) Un método en el que se exponen datos cifrados 
-                                                - [ ] d) Un método en el que se exponen datos de autenticación de usuarios  
+4. **¿Qué es una referencia directa insegura a objetos (IDOR)?**
+   - [ ] a) Un método en el que la base de datos queda expuesta
+   - [X] b) Un método en el que se exponen objetos internos
+   - [ ] c) Un método en el que se exponen datos cifrados 
+   - [ ] d) Un método en el que se exponen datos de autenticación de usuarios  
 
-                                                5. **¿Qué modelo de clasificación de amenazas se utiliza para clasificar amenazas durante el proceso de modelado de amenazas?**
-                                                   - [ ] a) SMART  
-                                                      - [ X] b) STRIDE 
-                                                         - [ ] c) RED 
-                                                            - [ ] d) DREAD
+5. **¿Qué modelo de clasificación de amenazas se utiliza para clasificar amenazas durante el proceso de modelado de amenazas?**
+   - [ ] a) SMART  
+   - [X] b) STRIDE 
+   - [ ] c) RED 
+   - [ ] d) DREAD
 
-                                                            ## Sección Práctica 
+## Sección Práctica 
 
 En este laboratorio implementarán mecanismos reales de protección de
 información dentro de la aplicación EventHub. El propósito no es
@@ -171,6 +171,3 @@ Una vez el usuario se autentique:
 | **Minimización de Datos (CVV + Tarjeta)** | CVV no almacenado bajo ninguna forma. Tarjeta almacenada únicamente con últimos 4 dígitos ofuscados. No es posible reconstruir el número original.                                                             | **0.8**        |
 | **Expiración de Sesión (3 min)** | CVV no almacenado bajo ninguna forma. Tarjeta almacenada únicamente con últimos 4 dígitos ofuscados. No es posible reconstruir el número original.                                                             | **0.5**        |
 | **Total**                              |                                                                                                                                                              | **5.0**        |
-
-
-
