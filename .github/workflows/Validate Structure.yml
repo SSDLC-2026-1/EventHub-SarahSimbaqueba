@@ -1,4 +1,4 @@
-name: Python Coverage
+name: Validate Structue
 on:
     pull_request:
         branches:
@@ -7,7 +7,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  python-coverage:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +23,7 @@ jobs:
 
       - name: Verify structue
         run: |
+            set -e
             if [ ! -f app.py ]; then exit 1; fi
             if [ ! -f requirements.txt ]; then exit 1; fi
             if [ ! -d templates ]; then exit 1; fi
@@ -31,6 +32,7 @@ jobs:
 
       - name: Validate json files
         run: |
+            set -e
             if [ ! -f data/users.json ]; then exit 1; fi
             python -m json.tool data/users.json > /dev/null
             if [ ! -f data/events.json ]; then exit 1; fi
