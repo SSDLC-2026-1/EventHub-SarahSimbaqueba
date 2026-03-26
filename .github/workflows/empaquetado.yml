@@ -14,6 +14,11 @@ jobs:
   empaquetado:
     runs-on: ubuntu-latest
     steps:
-    - name: create_artifact
-      run: echo "Modulo ${{ github.event.inputs.modulo }} seleccionado"
+    - name: artifact_frontend
+      if: ${{ github.event.inputs.modulo == 'frontend' }}
+      run: echo "fontend does brr seleccionado"
+    - name: artifact_backend
+      if: ${{ github.event.inputs.modulo == 'backend' }}
+      run: echo "fontend does brr seleccionado"
+    
     
