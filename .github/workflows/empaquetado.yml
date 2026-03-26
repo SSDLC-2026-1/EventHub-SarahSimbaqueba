@@ -1,1 +1,19 @@
 name: Empaquetado
+on:
+  workflow_dispatch:
+    inputs:
+      modulo:
+        required: true
+        type: choice
+        options:
+          - frontend
+          - backend
+          - data
+          - full
+jobs:
+  empaquetado:
+    runs-on: ubuntu-latest
+    steps:
+    - name: create_artifact
+      run: echo "Modulo ${{ github.event.inputs.modulo }} seleccionado"
+    
