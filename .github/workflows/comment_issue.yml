@@ -14,7 +14,7 @@ jobs:
         script: |
           github.rest.issues.createComment({
             owner: context.repo.owner,
-            repo: context.repo.repo
-            issue_number: 1
+            repo: context.repo.repo,
+            issue_number: 1,
             body: 'Comentario generado automáticamente desde un workflow manual.'
           })
